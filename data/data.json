@@ -1,0 +1,138 @@
+{
+  "students": [
+    {
+      "id": "mu6o900m90d4rj",
+      "name": "pavan",
+      "mobile": "3216549874",
+      "className": "6th",
+      "items": [
+        {
+          "id": "mu6obrkvc7vj5v",
+          "type": "book",
+          "refId": "mu6o9wk9zypm6p",
+          "name": "Hindi",
+          "price": 300,
+          "status": "Completed"
+        },
+        {
+          "id": "mu6obrkvgovi71",
+          "type": "book",
+          "refId": "mu6oa5uqu74gn4",
+          "name": "English",
+          "price": 350,
+          "status": "Completed"
+        },
+        {
+          "id": "mu6ogs92umiosu",
+          "type": "uniform",
+          "refId": "mu6odd04gybfzk",
+          "name": "Pants",
+          "category": "Pants",
+          "size": "20",
+          "price": 200,
+          "status": "Completed"
+        },
+        {
+          "id": "mu6ogs92851zrc",
+          "type": "uniform",
+          "refId": "mu6oe5rfuiwc5e",
+          "name": "Shirts",
+          "category": "Shirts",
+          "size": "24",
+          "price": 240,
+          "status": "Completed"
+        }
+      ]
+    },
+    {
+      "id": "mu6o9e9swfsyqj",
+      "name": "Anant",
+      "mobile": "3261549879",
+      "className": "7th",
+      "items": [
+        {
+          "id": "mu6ofzih354cv6",
+          "type": "uniform",
+          "refId": "mu6odntvd89rd1",
+          "name": "Pants",
+          "category": "Pants",
+          "size": "24",
+          "price": 240,
+          "status": "Completed"
+        }
+      ]
+    }
+  ],
+  "books": [
+    {
+      "id": "mu6o9wk9zypm6p",
+      "className": "6th",
+      "name": "Hindi",
+      "price": 300
+    },
+    {
+      "id": "mu6oa5uqu74gn4",
+      "className": "6th",
+      "name": "English",
+      "price": 350
+    },
+    {
+      "id": "mu6oahg1yz3w8k",
+      "className": "7th",
+      "name": "English",
+      "price": 320
+    },
+    {
+      "id": "mu6oas0r9td6t5",
+      "className": "7th",
+      "name": "Hindi",
+      "price": 400
+    }
+  ],
+  "uniforms": [
+    {
+      "id": "mu6odd04gybfzk",
+      "category": "Pants",
+      "size": "20",
+      "price": 200
+    },
+    {
+      "id": "mu6odgwqsqpvmo",
+      "category": "Pants",
+      "size": "22",
+      "price": 220
+    },
+    {
+      "id": "mu6odntvd89rd1",
+      "category": "Pants",
+      "size": "24",
+      "price": 240
+    },
+    {
+      "id": "mu6oe5rfuiwc5e",
+      "category": "Shirts",
+      "size": "24",
+      "price": 240
+    }
+  ],
+  "bookStock": [],
+  "uniformStock": [
+    {
+      "itemId": "mu6oe5rfuiwc5e",
+      "stock": 5
+    },
+    {
+      "itemId": "mu6odd04gybfzk",
+      "stock": 4
+    },
+    {
+      "itemId": "mu6odgwqsqpvmo",
+      "stock": 4
+    },
+    {
+      "itemId": "mu6odntvd89rd1",
+      "stock": 4
+    }
+  ],
+  "settings": {}
+}

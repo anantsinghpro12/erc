@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School ERP - Admin</title>
+<style>
+:root{--cream:#fbf3e7;--white:#ffffff;--orange:#e8823a;--orange-dark:#d16c22;--pink:#f4a7bb;--pink-dark:#e37a99;--dark:#33302c;--border:#e8ddcd;--muted:#8a8074}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(160deg,#fdf4e9,#fbeee0 40%,#fde9ef);color:var(--dark);font-size:14px;min-height:100vh}
+.app{display:flex;min-height:100vh;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(232,130,58,.35)}50%{box-shadow:0 0 0 8px rgba(232,130,58,0)}}
+@keyframes floatIcon{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sidebar{width:230px;background:linear-gradient(180deg,var(--white),#fff8f0);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;transition:.3s cubic-bezier(.4,0,.2,1);box-shadow:2px 0 12px rgba(0,0,0,.03)}
+.sidebar h2{padding:0 16px 16px;color:var(--orange-dark);font-size:19px;border-bottom:1px solid var(--border);margin-bottom:10px;letter-spacing:.3px}
+.nav-item{padding:12px 18px;cursor:pointer;color:var(--dark);display:flex;align-items:center;gap:8px;border-left:3px solid transparent;transition:.2s}
+.nav-item:hover{background:#fdf6ec;padding-left:22px}
+.nav-item.active{background:linear-gradient(90deg,#fdeadb,#fdeadb 60%,transparent);border-left-color:var(--orange);color:var(--orange-dark);font-weight:700}
+.main{flex:1;padding:22px;overflow-x:hidden}
+.topbar{display:none;align-items:center;gap:12px;margin-bottom:14px}
+.hamburger{display:none;background:var(--white);border:1px solid var(--border);border-radius:10px;width:40px;height:40px;font-size:18px;cursor:pointer;transition:.2s;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.hamburger:active{transform:scale(.9)}
+h1{font-size:22px;margin-bottom:18px;color:var(--dark);font-weight:800;display:flex;align-items:center;gap:8px}
+h3{font-size:16px;margin-bottom:10px}
+.section{display:none}
+.section.active{display:block;animation:slideUp .35s cubic-bezier(.4,0,.2,1)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:22px}
+.card{background:linear-gradient(145deg,var(--white),#fffaf3);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 3px 10px rgba(209,108,34,.06);transition:.25s;position:relative;overflow:hidden}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--orange),var(--pink))}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(209,108,34,.15)}
+.card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.card .value{font-size:26px;font-weight:800;margin-top:8px;color:var(--orange-dark)}
+.card.pink .value{color:var(--pink-dark)}
+.panel{background:linear-gradient(160deg,var(--white),#fffaf4);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+input,select,textarea{padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;background:var(--cream);color:var(--dark);transition:.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px rgba(232,130,58,.14);background:#fff}
+textarea{width:100%;min-height:100px;font-family:monospace;font-size:12px}
+.btn{padding:10px 18px;border:none;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;background:linear-gradient(135deg,var(--orange),var(--orange-dark));color:#fff;transition:.18s;box-shadow:0 3px 8px rgba(232,130,58,.3)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(232,130,58,.4)}
+.btn:active{transform:translateY(0) scale(.97)}
+.btn.secondary{background:linear-gradient(135deg,var(--pink),var(--pink-dark));box-shadow:0 3px 8px rgba(228,120,153,.3)}
+.btn.outline{background:transparent;border:1.5px solid var(--border);color:var(--dark);box-shadow:none}
+.btn.outline:hover{background:var(--cream);border-color:var(--orange);box-shadow:none;transform:translateY(-1px)}
+.btn.danger{background:linear-gradient(135deg,#e0655f,#c0392b);box-shadow:0 3px 8px rgba(192,57,43,.3)}
+.btn.small{padding:6px 12px;font-size:12px}
+.btn.big{padding:16px 20px;font-size:15px;width:100%}
+.search-box{flex:1;min-width:220px}
+.search-box input{width:100%}
+table{width:100%;border-collapse:collapse;font-size:13px}
+.table-wrap{overflow-x:auto}
+th,td{padding:10px 11px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+tbody tr{transition:.15s}
+tbody tr:hover{background:#fdf3e5}
+.badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;display:inline-block}
+.badge.pending{background:#fde3cf;color:var(--orange-dark);animation:pulseGlow 2.2s infinite}
+.badge.completed{background:#d8f0d8;color:#2e7d32}
+.uniform-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.uniform-card{background:linear-gradient(145deg,var(--white),#fff6ea);border:1.5px solid var(--border);border-radius:14px;padding:22px;text-align:center;cursor:pointer;font-weight:700;transition:.25s;box-shadow:0 3px 10px rgba(0,0,0,.04)}
+.uniform-card:hover{border-color:var(--orange);color:var(--orange-dark);transform:translateY(-5px) scale(1.03);box-shadow:0 12px 22px rgba(232,130,58,.18)}
+.uniform-card:active{transform:translateY(-1px) scale(.98)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(51,48,44,.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal-overlay.active{display:flex;animation:fadeIn .2s ease}
+.modal{background:linear-gradient(160deg,var(--white),#fffaf4);border-radius:16px;padding:26px;width:90%;max-width:400px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.25);animation:popIn .28s cubic-bezier(.34,1.56,.64,1);border-top:4px solid var(--orange)}
+.modal p{margin-bottom:20px;font-size:16px;font-weight:600}
+.modal .actions{display:flex;gap:10px;justify-content:center}
+.popup-overlay{display:none;position:fixed;inset:0;background:rgba(51,48,44,.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;z-index:900;padding:16px}
+.popup-overlay.active{display:flex;animation:fadeIn .2s ease}
+.popup-box{background:linear-gradient(160deg,var(--white),#fffaf4);border-radius:16px;padding:24px;width:100%;max-width:720px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.28);animation:popIn .28s cubic-bezier(.34,1.56,.64,1);border-top:5px solid var(--orange)}
+.popup-box.wide{max-width:920px}
+.popup-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.popup-head h2{font-size:19px;color:var(--dark)}
+.popup-close{background:var(--cream);border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:16px;line-height:1}
+.popup-close:hover{background:#fde3cf}
+.type-choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:6px}
+.type-choice{background:linear-gradient(145deg,var(--white),#fff6ea);border:1.5px solid var(--border);border-radius:14px;padding:26px 14px;text-align:center;cursor:pointer;font-weight:700;font-size:15px;transition:.2s}
+.type-choice:hover{border-color:var(--orange);color:var(--orange-dark);transform:translateY(-4px);box-shadow:0 10px 22px rgba(232,130,58,.16)}
+.type-choice .ico{font-size:30px;display:block;margin-bottom:8px}
+.big-check{width:22px;height:22px;cursor:pointer;accent-color:var(--orange)}
+.assign-list-row{display:flex;align-items:center;gap:14px;padding:12px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;background:var(--cream)}
+.assign-list-row .name{flex:1;font-weight:600}
+.assign-list-row select{min-width:120px}
+.uniform-cat-block{border:1.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--cream)}
+.uniform-cat-block h4{margin-bottom:10px;color:var(--orange-dark)}
+.uniform-cat-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.uniform-cat-row select{min-width:110px}
+.toast{position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,var(--dark),#4a4540);color:#fff;padding:14px 20px;border-radius:10px;z-index:1600;display:none;font-size:13px;font-weight:600;max-width:320px;box-shadow:0 10px 28px rgba(0,0,0,.25);border-left:4px solid var(--orange)}
+.toast.show{display:block;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+.back-link{color:var(--orange-dark);cursor:pointer;font-weight:700;margin-bottom:14px;display:inline-flex;align-items:center;gap:4px}
+.profile-box p{margin-bottom:8px;font-size:15px}
+.total-row{font-weight:800;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);color:var(--orange-dark)}
+.hidden{display:none!important}
+.err{color:#c0392b;font-size:12px;margin-top:6px;font-weight:600}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.field{display:flex;flex-direction:column}
+.login-screen{position:fixed;inset:0;background:linear-gradient(150deg,#fdf4e9,#fbe6ee);z-index:2000;display:flex;align-items:center;justify-content:center}
+.login-card{background:linear-gradient(160deg,var(--white),#fffaf4);border-radius:20px;padding:40px 34px;width:90%;max-width:380px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.2);animation:popIn .35s cubic-bezier(.34,1.56,.64,1);border-top:5px solid var(--orange)}
+.login-icon{font-size:46px;margin-bottom:10px;animation:floatIcon 2.4s ease-in-out infinite}
+.login-card h1{justify-content:center;margin-bottom:4px}
+.login-card p.sub{color:var(--muted);margin-bottom:20px;font-size:13px}
+.login-card input{width:100%;text-align:center;font-size:16px;letter-spacing:2px;margin-bottom:10px}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle}
+.payment-item-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border);font-size:14px}
+.stat-line{display:flex;justify-content:space-between;padding:6px 0;font-weight:700}
+@media(max-width:800px){
+  .sidebar{position:fixed;left:-240px;top:0;bottom:0;z-index:500;box-shadow:2px 0 10px rgba(0,0,0,.1)}
+  .sidebar.open{left:0}
+  .hamburger{display:block}
+  .topbar{display:flex}
+  table{font-size:12px}
+  .popup-box{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-icon">🎓</div>
+    <h1 style="justify-content:center">School ERP</h1>
+    <p class="sub">Enter password to continue</p>
+    <input type="password" id="login-pass" placeholder="Password" autocomplete="off">
+    <div class="err" id="login-err" style="min-height:16px;margin-bottom:6px"></div>
+    <button class="btn big" id="loginBtn" onclick="doLogin()">Continue</button>
+  </div>
+</div>
+
+<div class="app hidden" id="appRoot">
+  <div class="sidebar" id="sidebar">
+    <h2>🎓 School ERP</h2>
+    <div class="nav-item active" data-section="dashboard">Dashboard</div>
+    <div class="nav-item" data-section="students">Student Management</div>
+    <div class="nav-item" data-section="assign">Assign Items To Students</div>
+    <div class="nav-item" data-section="payments">Students Payments</div>
+    <div class="nav-item" data-section="inv-books">Inventory: Books</div>
+    <div class="nav-item" data-section="inv-uniforms">Inventory: Uniforms</div>
+    <div class="nav-item" data-section="remaining">Remaining Stocks</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar"><button class="hamburger" id="hamburger">&#9776;</button><strong>School ERP</strong></div>
+
+    <!-- DASHBOARD -->
+    <section class="section active" id="sec-dashboard">
+      <h1>Dashboard</h1>
+      <div class="cards-grid" id="dashCards"></div>
+    </section>
+
+    <!-- STUDENTS -->
+    <section class="section" id="sec-students">
+      <h1>Student Management</h1>
+      <div class="panel">
+        <div class="row">
+          <div class="search-box"><input type="text" id="studentSearch" placeholder="Search by student name or mobile number..."></div>
+          <button class="btn" onclick="openAddStudent()">+ Add Student</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Mobile</th><th>Class</th><th>View</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="studentTable"></tbody></table></div>
+      </div>
+
+      <div class="panel hidden" id="studentFormPanel">
+        <h3 id="studentFormTitle">Add Student</h3>
+        <div class="row">
+          <div class="field"><label>Student Name</label><input type="text" id="sf-name"></div>
+          <div class="field"><label>Mobile Number</label><input type="text" id="sf-mobile" maxlength="15"></div>
+          <div class="field"><label>Class</label><select id="sf-class"><% CLASSES.forEach(c=>{ %><option><%=c%></option><% }) %></select></div>
+        </div>
+        <div class="err" id="sf-err"></div>
+        <div class="row"><button class="btn" onclick="saveStudent()">Save</button><button class="btn outline" onclick="closeStudentForm()">Cancel</button></div>
+      </div>
+
+      <div class="panel hidden" id="studentProfilePanel">
+        <span class="back-link" onclick="closeProfile()">&larr; Back</span>
+        <div class="profile-box">
+          <p><b>Student Name:</b> <span id="pv-name"></span></p>
+          <p><b>Mobile No.:</b> <span id="pv-mobile"></span></p>
+          <p><b>Class:</b> <span id="pv-class"></span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ASSIGN ITEMS TO STUDENTS -->
+    <section class="section" id="sec-assign">
+      <h1>Assign Items To Students</h1>
+      <div class="panel">
+        <div class="row"><div class="search-box"><input type="text" id="asSearch" placeholder="Search by student name or mobile number..."></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Mobile</th><th>Class</th><th>View</th><th>Edit</th></tr></thead><tbody id="asTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- STUDENTS PAYMENTS -->
+    <section class="section" id="sec-payments">
+      <h1>Students Payments</h1>
+      <div class="panel">
+        <div class="row"><div class="search-box"><input type="text" id="paySearch" placeholder="Search by student name or mobile number..."></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Class</th><th>Pending (₹)</th><th>Total (₹)</th><th>Completed (₹)</th><th>Details</th></tr></thead><tbody id="payTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- INVENTORY: BOOKS -->
+    <section class="section" id="sec-inv-books">
+      <h1>Inventory - Book Management</h1>
+      <div class="panel">
+        <div class="row">
+          <button class="btn" onclick="toggle('ib-addForm')">+ Add Book</button>
+          <button class="btn secondary" onclick="toggle('ib-bulkForm')">+ Add Bulk</button>
+        </div>
+        <div class="row hidden" id="ib-addForm">
+          <div class="field"><label>Class</label><select id="ib-class"><% CLASSES.forEach(c=>{ %><option><%=c%></option><% }) %></select></div>
+          <div class="field"><label>Book Name</label><input type="text" id="ib-name"></div>
+          <div class="field"><label>Price</label><input type="number" id="ib-price" min="0"></div>
+          <button class="btn" onclick="addBook()" style="align-self:flex-end">Save</button>
+        </div>
+        <div class="hidden" id="ib-bulkForm">
+          <p style="margin-bottom:8px"><a href="#" onclick="downloadBookTemplate();return false">Download Template</a></p>
+          <textarea id="ib-bulkData" placeholder="Paste bulk data here...&#10;Class,Book Name,Price"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="btn outline" onclick="parseBookBulk()">Parse View</button>
+            <button class="btn hidden" id="ib-bulkAddBtn" onclick="confirmAddBooksBulk()">Add Books</button>
+          </div>
+          <div id="ib-bulkPreview"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="row">
+          <div class="search-box"><input type="text" id="ib-search" placeholder="Search by book name or class..."></div>
+          <label style="margin:0">Filter by class:</label>
+          <select id="ib-filterClass"><option value="All">All</option><% CLASSES.forEach(c=>{ %><option><%=c%></option><% }) %></select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Class</th><th>Book Name</th><th>Price</th><th>Total Stock</th><th>Sold</th><th>Remaining</th><th>Stock Value</th><th>Sold Value</th><th>Actions</th></tr></thead><tbody id="ib-table"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- INVENTORY: UNIFORMS -->
+    <section class="section" id="sec-inv-uniforms">
+      <h1>Inventory - Uniform Management</h1>
+      <div class="uniform-cards" id="iu-catCards"></div>
+      <div class="panel hidden" id="iu-catPanel" style="margin-top:16px">
+        <span class="back-link" onclick="iuBack()">&larr; Back</span>
+        <h3 id="iu-catTitle"></h3>
+        <div class="row">
+          <button class="btn" onclick="toggle('iu-addForm')">+ Add</button>
+          <button class="btn secondary" onclick="toggle('iu-bulkForm')">+ Add Bulk</button>
+        </div>
+        <div class="row hidden" id="iu-addForm">
+          <div class="field"><label>Size</label><select id="iu-size"><% SIZES.forEach(s=>{ %><option><%=s%></option><% }) %></select></div>
+          <div class="field"><label>Price</label><input type="number" id="iu-price" min="0"></div>
+          <button class="btn" onclick="addUniform()" style="align-self:flex-end">Save</button>
+        </div>
+        <div class="hidden" id="iu-bulkForm">
+          <p style="margin-bottom:8px"><a href="#" onclick="downloadUniformTemplate();return false">Download Template</a></p>
+          <textarea id="iu-bulkData" placeholder="Paste bulk data here...&#10;Category,Size,Price"></textarea>
+          <div class="row" style="margin-top:8px">
+            <button class="btn outline" onclick="parseUniformBulk()">Parse View</button>
+            <button class="btn hidden" id="iu-bulkAddBtn" onclick="confirmAddUniformsBulk()">Add Uniform Items</button>
+          </div>
+          <div id="iu-bulkPreview"></div>
+        </div>
+        <div class="row"><div class="search-box"><input type="text" id="iu-search" placeholder="Search by size..."></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Size</th><th>Price</th><th>Total Stock</th><th>Sold</th><th>Remaining</th><th>Stock Value</th><th>Sold Value</th><th>Actions</th></tr></thead><tbody id="iu-table"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- REMAINING STOCKS -->
+    <section class="section" id="sec-remaining">
+      <h1>Remaining Stocks</h1>
+      <div class="uniform-cards" style="margin-bottom:16px">
+        <div class="uniform-card" onclick="showRemainingBooks()">Books</div>
+        <div class="uniform-card" onclick="showRemainingUniforms()">Uniforms</div>
+      </div>
+      <div class="panel hidden" id="rm-booksPanel">
+        <span class="back-link" onclick="rmBack()">&larr; Back</span>
+        <h3>Remaining Book Stock</h3>
+        <div class="row"><div class="search-box"><input type="text" id="rm-bookSearch" placeholder="Search by book name or class..."></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Book</th><th>Class</th><th>Price</th><th>Total Stock</th><th>Sold</th><th>Remaining</th><th>Stock Value</th><th>Sold Value</th></tr></thead><tbody id="rm-booksTable"></tbody></table></div>
+      </div>
+      <div class="panel hidden" id="rm-uniformCatPanel">
+        <span class="back-link" onclick="rmBack()">&larr; Back</span>
+        <div class="uniform-cards" id="rm-uniformCards"></div>
+      </div>
+      <div class="panel hidden" id="rm-uniformSizePanel">
+        <span class="back-link" onclick="showRemainingUniforms()">&larr; Back</span>
+        <h3 id="rm-uniformCatTitle"></h3>
+        <div class="row"><div class="search-box"><input type="text" id="rm-sizeSearch" placeholder="Search by size..."></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Size</th><th>Price</th><th>Total Stock</th><th>Sold</th><th>Remaining</th><th>Stock Value</th><th>Sold Value</th></tr></thead><tbody id="rm-uniformSizeTable"></tbody></table></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <p id="modalText">Are you sure?</p>
+    <div class="actions">
+      <button class="btn outline" onclick="modalCancel()">Cancel</button>
+      <button class="btn" onclick="modalOk()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-box" id="popupBox">
+    <div class="popup-head">
+      <h2 id="popupTitle"></h2>
+      <button class="popup-close" onclick="closePopup()">&times;</button>
+    </div>
+    <div id="popupBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CLASSES = <%- JSON.stringify(CLASSES) %>;
+const SIZES = <%- JSON.stringify(SIZES) %>;
+const CATEGORIES = <%- JSON.stringify(CATEGORIES) %>;
+const UNIFORM_CATEGORIES = <%- JSON.stringify(UNIFORM_CATEGORIES) %>;
+const ACCESSORY_CATEGORIES = <%- JSON.stringify(ACCESSORY_CATEGORIES) %>;
+let STATE = { students: <%- JSON.stringify(data.students) %>, books: <%- JSON.stringify(data.books) %>, uniforms: <%- JSON.stringify(data.uniforms) %>, bookStock: <%- JSON.stringify(data.bookStock) %>, uniformStock: <%- JSON.stringify(data.uniformStock) %> };
+let editingStudentId = null, currentStudentId = null, currentUniformCat = null, bookToggleState = false;
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toggle(id){ document.getElementById(id).classList.toggle('hidden'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+async function api(url, method, body){
+  const res = await fetch(url, { method: method||'GET', headers: body?{'Content-Type':'application/json'}:{}, body: body?JSON.stringify(body):undefined });
+  const j = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+async function fetchState(){ const r = await fetch('/api/state'); STATE = await r.json(); }
+async function refreshAll(){ await fetchState(); renderDashboard(); renderStudentTable(); renderAsTable(); renderPayTable(); }
+async function reloadCatalog(){
+  await fetchState();
+  renderDashboard(); renderStudentTable(); renderAsTable(); renderPayTable(); renderBookInventory();
+  if(document.getElementById('iu-catPanel') && !document.getElementById('iu-catPanel').classList.contains('hidden')) renderIuTable();
+}
+
+// ---------- LOGIN ----------
+async function doLogin(){
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-err');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Checking...';
+  try{
+    const res = await api('/api/login','POST',{password:pass});
+    btn.disabled=false; btn.textContent='Continue';
+    if(res.success){
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appRoot').classList.remove('hidden');
+    } else {
+      errEl.textContent = 'Incorrect password';
+      const card = document.querySelector('.login-card');
+      card.style.animation='none'; void card.offsetWidth; card.style.animation='popIn .3s cubic-bezier(.34,1.56,.64,1)';
+      document.getElementById('login-pass').value='';
+      document.getElementById('login-pass').focus();
+    }
+  }catch(e){ btn.disabled=false; btn.textContent='Continue'; errEl.textContent='Something went wrong'; }
+}
+document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+// ---------- CONFIRM MODAL ----------
+let modalCb = null;
+function askConfirm(text, cb){ document.getElementById('modalText').textContent = text; modalCb = cb; document.getElementById('modalOverlay').classList.add('active'); }
+function modalCancel(){ document.getElementById('modalOverlay').classList.remove('active'); modalCb=null; }
+function modalOk(){ document.getElementById('modalOverlay').classList.remove('active'); if(modalCb) modalCb(); modalCb=null; }
+
+// ---------- GENERIC POPUP ----------
+function openPopup(title, bodyHtml, wide){
+  document.getElementById('popupTitle').textContent = title;
+  document.getElementById('popupBody').innerHTML = bodyHtml;
+  document.getElementById('popupBox').classList.toggle('wide', !!wide);
+  document.getElementById('popupOverlay').classList.add('active');
+}
+function closePopup(){ document.getElementById('popupOverlay').classList.remove('active'); }
+
+// ---------- NAVIGATION ----------
+document.querySelectorAll('.nav-item').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById('sec-'+el.dataset.section).classList.add('active');
+    document.getElementById('sidebar').classList.remove('open');
+  });
+});
+document.getElementById('hamburger').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+// ---------- DASHBOARD ----------
+function computeGivenLocal(type, matchFn){
+  let given=0;
+  STATE.students.forEach(s=>(s.items||[]).forEach(it=>{ if(it.status==='Completed' && it.type===type && matchFn(it)) given++; }));
+  return given;
+}
+function computeDashboardLocal(){
+  const totalStudents = STATE.students.length;
+  const totalBooks = STATE.books.length;
+  const totalUniformItems = STATE.uniforms.length;
+  const totalBookStock = STATE.bookStock.reduce((a,b)=>a+(b.stock||0),0);
+  const totalUniformStock = STATE.uniformStock.reduce((a,b)=>a+(b.stock||0),0);
+  let pendingBookAmount=0, pendingUniformAmount=0, givenBooks=0, givenUniforms=0;
+  STATE.students.forEach(s=>(s.items||[]).forEach(it=>{
+    const amt = Number(it.price)||0;
+    if(it.category){ if(it.status==='Pending') pendingUniformAmount+=amt; else givenUniforms++; }
+    else { if(it.status==='Pending') pendingBookAmount+=amt; else givenBooks++; }
+  }));
+  return { totalStudents, totalBooks, totalUniformItems, totalBookStock, totalUniformStock, pendingBookAmount, pendingUniformAmount, remainingBookStock: totalBookStock-givenBooks, remainingUniformStock: totalUniformStock-givenUniforms };
+}
+function renderDashboard(){
+  const d = computeDashboardLocal();
+  const cards = [
+    ['Total Students', d.totalStudents], ['Total Books', d.totalBooks], ['Total Uniform Items', d.totalUniformItems],
+    ['Total Book Stock', d.totalBookStock], ['Total Uniform Stock', d.totalUniformStock],
+    ['Pending Book Amount', '₹'+d.pendingBookAmount], ['Pending Uniform Amount', '₹'+d.pendingUniformAmount],
+    ['Remaining Book Stock', d.remainingBookStock], ['Remaining Uniform Stock', d.remainingUniformStock]
+  ];
+  document.getElementById('dashCards').innerHTML = cards.map((c,i)=>`<div class="card${i%2?' pink':''}"><div class="label">${c[0]}</div><div class="value">${c[1]}</div></div>`).join('');
+}
+
+// ---------- STUDENTS ----------
+function renderStudentTable(){
+  const q = (document.getElementById('studentSearch').value||'').toLowerCase();
+  const list = STATE.students.filter(s => !q || s.name.toLowerCase().includes(q) || s.mobile.includes(q));
+  document.getElementById('studentTable').innerHTML = list.map(s=>`
+    <tr><td>${esc(s.name)}</td><td>${esc(s.mobile)}</td><td>${esc(s.className)}</td>
+    <td><button class="btn small outline" onclick="viewStudent('${s.id}')">View</button></td>
+    <td><button class="btn small" onclick="editStudent('${s.id}')">Edit</button></td>
+    <td><button class="btn small danger" onclick="deleteStudent('${s.id}')">Delete</button></td></tr>`).join('') || '<tr><td colspan="6" style="color:var(--muted)">No students found</td></tr>';
+}
+document.getElementById('studentSearch').addEventListener('input', renderStudentTable);
+
+function openAddStudent(){
+  editingStudentId = null;
+  document.getElementById('studentFormTitle').textContent = 'Add Student';
+  document.getElementById('sf-name').value=''; document.getElementById('sf-mobile').value=''; document.getElementById('sf-class').value=CLASSES[0];
+  document.getElementById('sf-err').textContent='';
+  document.getElementById('studentFormPanel').classList.remove('hidden');
+  document.getElementById('studentProfilePanel').classList.add('hidden');
+}
+function closeStudentForm(){ document.getElementById('studentFormPanel').classList.add('hidden'); }
+function editStudent(id){
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  editingStudentId = id;
+  document.getElementById('studentFormTitle').textContent = 'Edit Student';
+  document.getElementById('sf-name').value=s.name; document.getElementById('sf-mobile').value=s.mobile; document.getElementById('sf-class').value=s.className;
+  document.getElementById('sf-err').textContent='';
+  document.getElementById('studentFormPanel').classList.remove('hidden');
+  document.getElementById('studentProfilePanel').classList.add('hidden');
+}
+function saveStudent(){
+  const name = document.getElementById('sf-name').value.trim();
+  const mobile = document.getElementById('sf-mobile').value.trim();
+  const className = document.getElementById('sf-class').value;
+  const errEl = document.getElementById('sf-err');
+  if(!name || !mobile || !className){ errEl.textContent='All fields are required'; return; }
+  if(!/^\d{7,15}$/.test(mobile)){ errEl.textContent='Enter a valid mobile number'; return; }
+  const doSave = async ()=>{
+    try{
+      if(editingStudentId) await api('/api/students/'+editingStudentId,'PUT',{name,mobile,className});
+      else await api('/api/students','POST',{name,mobile,className});
+      showToast('Saved successfully');
+      closeStudentForm();
+      await refreshAll();
+    }catch(e){ errEl.textContent = e.message; }
+  };
+  if(editingStudentId) askConfirm('Are you sure you want to save these changes?', doSave);
+  else doSave();
+}
+function viewStudent(id){
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  document.getElementById('pv-name').textContent = s.name;
+  document.getElementById('pv-mobile').textContent = s.mobile;
+  document.getElementById('pv-class').textContent = s.className;
+  document.getElementById('studentProfilePanel').classList.remove('hidden');
+  document.getElementById('studentFormPanel').classList.add('hidden');
+}
+function closeProfile(){ document.getElementById('studentProfilePanel').classList.add('hidden'); }
+function deleteStudent(id){
+  askConfirm('Are you sure you want to delete this student?', async ()=>{
+    try{ await api('/api/students/'+id,'DELETE'); showToast('Student deleted'); await refreshAll(); }
+    catch(e){ showToast(e.message); }
+  });
+}
+
+// ---------- ITEM TOTALS HELPER ----------
+function itemsTotals(items){
+  let pending=0, completed=0;
+  items.forEach(it=>{ if(it.status==='Pending') pending+=Number(it.price)||0; else completed+=Number(it.price)||0; });
+  return { pending, completed, total: pending+completed, pendingCount: items.filter(i=>i.status==='Pending').length, completedCount: items.filter(i=>i.status==='Completed').length };
+}
+
+// ---------- ASSIGN ITEMS TO STUDENTS ----------
+function renderAsTable(){
+  const q = (document.getElementById('asSearch').value||'').toLowerCase();
+  const list = STATE.students.filter(s => !q || s.name.toLowerCase().includes(q) || s.mobile.includes(q));
+  document.getElementById('asTable').innerHTML = list.map(s=>`
+    <tr><td>${esc(s.name)}</td><td>${esc(s.mobile)}</td><td>${esc(s.className)}</td>
+    <td><button class="btn small outline" onclick="assignView('${s.id}')">View</button></td>
+    <td><button class="btn small" onclick="openEditChoice('${s.id}')">Edit</button></td></tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted)">No students found</td></tr>';
+}
+document.getElementById('asSearch').addEventListener('input', renderAsTable);
+
+function assignView(id){
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  const items = s.items||[];
+  const t = itemsTotals(items);
+  const rows = items.map(it=>{
+    const label = it.category ? `${esc(it.name)} (Size ${esc(it.size)})` : esc(it.name);
+    return `<div class="payment-item-row"><span>${label}</span><span><span class="badge ${it.status.toLowerCase()}">${it.status}</span> &nbsp;₹${it.price} ${it.status==='Pending'?`<button class="btn small" style="margin-left:8px" onclick="markCompletedInView('${s.id}','${it.id}')">Mark Completed</button>`:''}</span></div>`;
+  }).join('') || '<p style="color:var(--muted)">No items assigned yet</p>';
+  const body = `<div class="profile-box"><p><b>Student:</b> ${esc(s.name)}</p><p><b>Class:</b> ${esc(s.className)}</p></div>
+    <div style="margin-top:10px">${rows}</div>
+    <div class="total-row">Total: ₹${t.total} &nbsp;|&nbsp; Pending: ₹${t.pending} &nbsp;|&nbsp; Completed: ₹${t.completed}</div>`;
+  openPopup('Student Items - '+s.name, body, true);
+}
+function markCompletedInView(sid,itemId){
+  askConfirm('Are you sure you want to mark this as completed?', async ()=>{
+    try{ await api('/api/students/'+sid+'/items/'+itemId+'/complete','POST'); showToast('Marked as completed'); await refreshAll(); assignView(sid); }
+    catch(e){ showToast(e.message); }
+  });
+}
+
+function openEditChoice(id){
+  currentStudentId = id;
+  const body = `<div class="type-choice-grid">
+    <div class="type-choice" onclick="openBookAssign('${id}')"><span class="ico">📚</span>Book</div>
+    <div class="type-choice" onclick="openUniformAssign('${id}')"><span class="ico">👕</span>Uniform</div>
+    <div class="type-choice" onclick="openAccessoriesAssign('${id}')"><span class="ico">🎒</span>Accessories</div>
+  </div>`;
+  openPopup('Assign Items', body);
+}
+
+function statusOptions(prefix,current){
+  const cur = current || 'Select';
+  return `<option value="Select" ${cur==='Select'?'selected':''}>Select</option>
+    <option value="Pending" ${cur==='Pending'?'selected':''}>Pending</option>
+    <option value="Completed" ${cur==='Completed'?'selected':''}>Completed</option>`;
+}
+
+function openBookAssign(id){
+  currentStudentId = id; bookToggleState = false;
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  const classBooks = STATE.books.filter(b=>b.className===s.className);
+  const assignedMap = new Map((s.items||[]).filter(it=>it.type==='book' && it.refId).map(it=>[it.refId,it.status]));
+  const rows = classBooks.map(b=>{
+    const assignedStatus = assignedMap.get(b.id);
+    const checked = assignedMap.has(b.id);
+    return `<div class="assign-list-row">
+      <input type="checkbox" class="big-check" id="ba-chk-${b.id}" value="${b.id}" ${checked?'checked':''}>
+      <span class="name">${esc(b.name)} (₹${b.price})</span>
+      <select id="ba-status-${b.id}">${statusOptions('ba',assignedStatus)}</select>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted)">No books available for this class</p>';
+  const body = `<p style="margin-bottom:10px"><b>${esc(s.name)}</b> (${esc(s.className)})</p>
+    <div class="row">
+      <button class="btn outline small" onclick="baCheckAll()">Check All</button>
+      <button class="btn outline small" onclick="baToggleStatus()">Toggle Completed / Pending (for checked)</button>
+    </div>
+    <div id="ba-rows">${rows}</div>
+    <button class="btn big" style="margin-top:14px" onclick="confirmSaveBooks('${id}')">Allot to Student</button>`;
+  openPopup('Assign Books', body, true);
+}
+function baCheckAll(){ document.querySelectorAll('#ba-rows input[type=checkbox]').forEach(c=>c.checked=true); }
+function baToggleStatus(){
+  bookToggleState = !bookToggleState;
+  const target = bookToggleState ? 'Completed' : 'Pending';
+  document.querySelectorAll('#ba-rows input[type=checkbox]:checked').forEach(c=>{
+    const sel = document.getElementById('ba-status-'+c.value);
+    if(sel) sel.value = target;
+  });
+}
+function confirmSaveBooks(id){
+  askConfirm('Are you sure you want to save these assignments?', async ()=>{
+    const rows = document.querySelectorAll('#ba-rows input[type=checkbox]');
+    const bookIds = []; let skipped = 0;
+    rows.forEach(c=>{
+      if(!c.checked) return;
+      const sel = document.getElementById('ba-status-'+c.value);
+      if(!sel || sel.value==='Select'){ skipped++; return; }
+      bookIds.push({id:c.value, status: sel.value});
+    });
+    try{
+      await api('/api/students/'+id+'/books','POST',{bookIds});
+      showToast(skipped ? `Saved. ${skipped} item(s) skipped (status not set)` : 'Books updated');
+      await refreshAll(); closePopup(); assignView(id);
+    }catch(e){ showToast(e.message); }
+  });
+}
+
+function openUniformAssign(id){
+  currentStudentId = id;
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  const assignedMap = new Map((s.items||[]).filter(it=>it.type==='uniform').map(it=>[it.category,it]));
+  const blocks = UNIFORM_CATEGORIES.map(cat=>{
+    const sizesForCat = STATE.uniforms.filter(u=>u.category===cat);
+    const assigned = assignedMap.get(cat);
+    const checked = !!assigned;
+    const sizeOptions = sizesForCat.map(u=>`<option value="${u.id}" ${assigned && assigned.refId===u.id?'selected':''}>${esc(u.size)} (₹${u.price})</option>`).join('');
+    return `<div class="uniform-cat-block">
+      <h4>${cat}</h4>
+      <div class="uniform-cat-row">
+        <select id="uf-size-${cat}" ${sizesForCat.length? '' : 'disabled'}>
+          <option value="">Select size</option>${sizeOptions}
+        </select>
+        <input type="checkbox" class="big-check" id="uf-chk-${cat}" ${checked?'checked':''}>
+        <select id="uf-status-${cat}">${statusOptions('uf', assigned?assigned.status:null)}</select>
+      </div>
+      ${sizesForCat.length? '' : '<p style="color:var(--muted);font-size:12px;margin-top:6px">No sizes set up in Inventory for this category yet</p>'}
+    </div>`;
+  }).join('');
+  const body = `<p style="margin-bottom:10px"><b>${esc(s.name)}</b> (${esc(s.className)})</p>
+    ${blocks}
+    <button class="btn big" style="margin-top:8px" onclick="confirmSaveUniforms('${id}')">Allot to Student</button>`;
+  openPopup('Assign Uniform', body, true);
+}
+function confirmSaveUniforms(id){
+  askConfirm('Are you sure you want to save these assignments?', async ()=>{
+    const itemIds = []; let skipped = 0;
+    UNIFORM_CATEGORIES.forEach(cat=>{
+      const chk = document.getElementById('uf-chk-'+cat);
+      if(!chk || !chk.checked) return;
+      const sizeSel = document.getElementById('uf-size-'+cat);
+      const statusSel = document.getElementById('uf-status-'+cat);
+      if(!sizeSel || !sizeSel.value || !statusSel || statusSel.value==='Select'){ skipped++; return; }
+      itemIds.push({id: sizeSel.value, status: statusSel.value});
+    });
+    try{
+      await api('/api/students/'+id+'/uniforms','POST',{itemIds, categories: UNIFORM_CATEGORIES});
+      showToast(skipped ? `Saved. ${skipped} categor${skipped>1?'ies':'y'} skipped (size/status not set)` : 'Uniform items updated');
+      await refreshAll(); closePopup(); assignView(id);
+    }catch(e){ showToast(e.message); }
+  });
+}
+
+function openAccessoriesAssign(id){
+  currentStudentId = id;
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  const beltAssigned = (s.items||[]).find(it=>it.type==='uniform' && it.category==='Belt');
+  const beltSizes = STATE.uniforms.filter(u=>u.category==='Belt');
+  const beltSizeOptions = beltSizes.map(u=>`<option value="${u.id}" ${beltAssigned && beltAssigned.refId===u.id?'selected':''}>${esc(u.size)} (₹${u.price})</option>`).join('');
+  const diaryItem = (s.items||[]).find(it=>it.isDiary);
+  const body = `<p style="margin-bottom:10px"><b>${esc(s.name)}</b> (${esc(s.className)})</p>
+    <div class="uniform-cat-block">
+      <h4>Belt</h4>
+      <div class="uniform-cat-row">
+        <select id="acc-belt-size" ${beltSizes.length?'':'disabled'}>
+          <option value="">Select size</option>${beltSizeOptions}
+        </select>
+        <input type="checkbox" class="big-check" id="acc-belt-chk" ${beltAssigned?'checked':''}>
+        <select id="acc-belt-status">${statusOptions('accbelt', beltAssigned?beltAssigned.status:null)}</select>
+      </div>
+      ${beltSizes.length? '' : '<p style="color:var(--muted);font-size:12px;margin-top:6px">No belt sizes set up in Inventory yet</p>'}
+    </div>
+    <div class="uniform-cat-block">
+      <h4>Diary</h4>
+      <div class="uniform-cat-row">
+        <input type="checkbox" class="big-check" id="acc-diary-chk" ${diaryItem?'checked':''}>
+        <span>₹50</span>
+        <select id="acc-diary-status">${statusOptions('accdiary', diaryItem?diaryItem.status:null)}</select>
+      </div>
+    </div>
+    <button class="btn big" style="margin-top:8px" onclick="confirmSaveAccessories('${id}')">Allot to Student</button>`;
+  openPopup('Assign Accessories', body, true);
+}
+function confirmSaveAccessories(id){
+  askConfirm('Are you sure you want to save these assignments?', async ()=>{
+    let skipped = 0;
+    const itemIds = [];
+    const beltChk = document.getElementById('acc-belt-chk');
+    if(beltChk && beltChk.checked){
+      const sizeSel = document.getElementById('acc-belt-size');
+      const statusSel = document.getElementById('acc-belt-status');
+      if(sizeSel.value && statusSel.value!=='Select') itemIds.push({id:sizeSel.value, status:statusSel.value});
+      else skipped++;
+    }
+    const diaryChk = document.getElementById('acc-diary-chk');
+    let diary = { checked:false, status:'Pending' };
+    if(diaryChk && diaryChk.checked){
+      const statusSel = document.getElementById('acc-diary-status');
+      if(statusSel.value!=='Select') diary = { checked:true, status:statusSel.value };
+      else skipped++;
+    }
+    try{
+      await api('/api/students/'+id+'/uniforms','POST',{itemIds, categories: ['Belt']});
+      await api('/api/students/'+id+'/diary','POST',{diary});
+      showToast(skipped ? `Saved. ${skipped} item(s) skipped (size/status not set)` : 'Accessories updated');
+      await refreshAll(); closePopup(); assignView(id);
+    }catch(e){ showToast(e.message); }
+  });
+}
+
+// ---------- STUDENTS PAYMENTS ----------
+function renderPayTable(){
+  const q = (document.getElementById('paySearch').value||'').toLowerCase();
+  const list = STATE.students.filter(s => !q || s.name.toLowerCase().includes(q) || s.mobile.includes(q));
+  document.getElementById('payTable').innerHTML = list.map(s=>{
+    const t = itemsTotals(s.items||[]);
+    return `<tr><td>${esc(s.name)}</td><td>${esc(s.className)}</td><td>₹${t.pending}</td><td>₹${t.total}</td><td>₹${t.completed}</td>
+    <td><button class="btn small outline" onclick="paymentDetails('${s.id}')">Details</button></td></tr>`;
+  }).join('') || '<tr><td colspan="6" style="color:var(--muted)">No students found</td></tr>';
+}
+document.getElementById('paySearch').addEventListener('input', renderPayTable);
+function paymentDetails(id){
+  const s = STATE.students.find(x=>x.id===id); if(!s) return;
+  const items = s.items||[];
+  const t = itemsTotals(items);
+  const rows = items.map(it=>{
+    const label = it.category ? `${esc(it.name)} (Size ${esc(it.size)})` : esc(it.name);
+    return `<div class="payment-item-row"><span>${label}</span><span><span class="badge ${it.status.toLowerCase()}">${it.status}</span> ₹${it.price}</span></div>`;
+  }).join('') || '<p style="color:var(--muted)">No items assigned yet</p>';
+  const body = `<div class="profile-box"><p><b>Student:</b> ${esc(s.name)}</p><p><b>Class:</b> ${esc(s.className)}</p></div>
+    <div style="margin-top:10px">${rows}</div>
+    <div class="stat-line"><span>Total Bill</span><span>₹${t.total}</span></div>
+    <div class="stat-line"><span>Pending Items (₹${t.pending})</span><span>${t.pendingCount}</span></div>
+    <div class="stat-line"><span>Completed Items (₹${t.completed})</span><span>${t.completedCount}</span></div>`;
+  openPopup('Payment Details - '+s.name, body, true);
+}
+
+// ---------- INVENTORY: BOOKS ----------
+function renderBookInventory(){
+  const filter = document.getElementById('ib-filterClass').value;
+  const q = (document.getElementById('ib-search').value||'').toLowerCase();
+  const list = STATE.books.filter(b => (filter==='All' || b.className===filter) && (!q || b.name.toLowerCase().includes(q) || b.className.toLowerCase().includes(q)));
+  document.getElementById('ib-table').innerHTML = list.map(b=>{
+    const stockEntry = STATE.bookStock.find(s=>s.bookId===b.id);
+    const stockVal = stockEntry ? stockEntry.stock : null;
+    const total = stockVal===null?0:stockVal;
+    const sold = computeGivenLocal('book', it=>it.refId===b.id);
+    const remaining = total - sold;
+    return `<tr><td>${esc(b.className)}</td><td>${esc(b.name)}</td><td>₹${b.price}</td><td>${stockVal===null?'Not set':total}</td><td>${sold}</td><td>${stockVal===null?'-':remaining}</td><td>₹${total*b.price}</td><td>₹${sold*b.price}</td>
+    <td><button class="btn small" onclick="openStockModal('book','${b.id}',${stockVal===null?'null':stockVal})">${stockVal===null?'Set Stock':'Edit Stock'}</button>
+    <button class="btn small danger" onclick="deleteBook('${b.id}')">Delete</button></td></tr>`;
+  }).join('') || '<tr><td colspan="9" style="color:var(--muted)">No books found</td></tr>';
+}
+document.getElementById('ib-filterClass').addEventListener('change', renderBookInventory);
+document.getElementById('ib-search').addEventListener('input', renderBookInventory);
+async function addBook(){
+  const className = document.getElementById('ib-class').value;
+  const name = document.getElementById('ib-name').value.trim();
+  const price = document.getElementById('ib-price').value;
+  if(!name || price===''){ showToast('All fields required'); return; }
+  try{ await api('/api/books','POST',{className,name,price}); showToast('Book added'); document.getElementById('ib-name').value=''; document.getElementById('ib-price').value=''; await reloadCatalog(); }
+  catch(e){ showToast(e.message); }
+}
+function deleteBook(id){
+  askConfirm('Are you sure you want to delete this book?', async ()=>{
+    try{ await api('/api/books/'+id,'DELETE'); showToast('Book deleted'); await reloadCatalog(); }
+    catch(e){ showToast(e.message); }
+  });
+}
+function downloadBookTemplate(){ downloadCsv('book_template.csv', 'Class,Book Name,Price\\n5th,Hindi,250\\n5th,English,200\\n5th,Mathematics,300'); }
+let parsedBookRows = [];
+function parseBookBulk(){
+  const raw = document.getElementById('ib-bulkData').value.trim();
+  const lines = raw.split('\\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length && /class/i.test(lines[0]) && /book/i.test(lines[0])) lines.shift();
+  parsedBookRows = lines.map(l=>{ const [className,name,price] = l.split(',').map(x=>x&&x.trim()); return {className,name,price}; });
+  const rows = parsedBookRows.map(r=>{
+    const validClass = CLASSES.includes(r.className);
+    const validPrice = !isNaN(Number(r.price)) && Number(r.price)>=0;
+    const ok = validClass && r.name && validPrice;
+    return `<tr style="${ok?'':'color:#c0392b'}"><td>${esc(r.className||'')}</td><td>${esc(r.name||'')}</td><td>${esc(r.price||'')}</td><td>${ok?'Valid':'Invalid'}</td></tr>`;
+  }).join('');
+  document.getElementById('ib-bulkPreview').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Class</th><th>Name</th><th>Price</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('ib-bulkAddBtn').classList.remove('hidden');
+}
+function confirmAddBooksBulk(){
+  askConfirm('Are you sure you want to add these books?', async ()=>{
+    try{ const res = await api('/api/books/bulk','POST',{rows:parsedBookRows}); showToast(`Added ${res.added.length} books${res.errors.length?', '+res.errors.length+' errors':''}`); document.getElementById('ib-bulkData').value=''; document.getElementById('ib-bulkPreview').innerHTML=''; document.getElementById('ib-bulkAddBtn').classList.add('hidden'); await reloadCatalog(); }
+    catch(e){ showToast(e.message); }
+  });
+}
+function openStockModal(type,id,current){
+  const val = prompt('Stock Quantity:', current===null?'':current);
+  if(val===null) return;
+  const qty = Number(val);
+  if(isNaN(qty)||qty<0){ showToast('Invalid stock quantity'); return; }
+  askConfirm('Are you sure you want to set stock to '+qty+'?', async ()=>{
+    try{
+      if(type==='book') await api('/api/stock/book/'+id,'POST',{stock:qty});
+      else await api('/api/stock/uniform/'+id,'POST',{stock:qty});
+      showToast('Stock updated'); await reloadCatalog();
+    }catch(e){ showToast(e.message); }
+  });
+}
+
+// ---------- INVENTORY: UNIFORMS ----------
+function renderIuCatCards(){
+  document.getElementById('iu-catCards').innerHTML = CATEGORIES.map(c=>`<div class="uniform-card" onclick="iuOpenCat('${c}')">${c}</div>`).join('');
+}
+function iuOpenCat(cat){
+  currentUniformCat = cat;
+  document.getElementById('iu-catTitle').textContent = cat;
+  document.getElementById('iu-catCards').classList.add('hidden');
+  document.getElementById('iu-catPanel').classList.remove('hidden');
+  document.getElementById('iu-search').value='';
+  renderIuTable();
+}
+function iuBack(){ document.getElementById('iu-catCards').classList.remove('hidden'); document.getElementById('iu-catPanel').classList.add('hidden'); }
+function renderIuTable(){
+  const q = (document.getElementById('iu-search').value||'').toLowerCase();
+  const list = STATE.uniforms.filter(u=>u.category===currentUniformCat && (!q || u.size.toLowerCase().includes(q)));
+  document.getElementById('iu-table').innerHTML = list.map(u=>{
+    const stockEntry = STATE.uniformStock.find(s=>s.itemId===u.id);
+    const stockVal = stockEntry ? stockEntry.stock : null;
+    const total = stockVal===null?0:stockVal;
+    const sold = computeGivenLocal('uniform', it=>it.refId===u.id);
+    const remaining = total-sold;
+    return `<tr><td>${esc(u.size)}</td><td>₹${u.price}</td><td>${stockVal===null?'Not set':total}</td><td>${sold}</td><td>${stockVal===null?'-':remaining}</td><td>₹${total*u.price}</td><td>₹${sold*u.price}</td>
+    <td><button class="btn small" onclick="openStockModal('uniform','${u.id}',${stockVal===null?'null':stockVal})">${stockVal===null?'Set Stock':'Edit Stock'}</button>
+    <button class="btn small danger" onclick="deleteUniform('${u.id}')">Delete</button></td></tr>`;
+  }).join('') || '<tr><td colspan="8" style="color:var(--muted)">No items found</td></tr>';
+}
+document.getElementById('iu-search').addEventListener('input', renderIuTable);
+async function addUniform(){
+  const size = document.getElementById('iu-size').value;
+  const price = document.getElementById('iu-price').value;
+  if(price===''){ showToast('Price required'); return; }
+  try{ await api('/api/uniforms','POST',{category:currentUniformCat,size,price}); showToast('Item added'); document.getElementById('iu-price').value=''; await reloadCatalog(); }
+  catch(e){ showToast(e.message); }
+}
+function deleteUniform(id){
+  askConfirm('Are you sure you want to delete this item?', async ()=>{
+    try{ await api('/api/uniforms/'+id,'DELETE'); showToast('Item deleted'); await reloadCatalog(); }
+    catch(e){ showToast(e.message); }
+  });
+}
+function downloadUniformTemplate(){ downloadCsv('uniform_template.csv', 'Category,Size,Price\\nPants,20,500\\nPants,22,520\\nPants,24,540'); }
+let parsedUniformRows = [];
+function parseUniformBulk(){
+  const raw = document.getElementById('iu-bulkData').value.trim();
+  const lines = raw.split('\\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length && /category/i.test(lines[0]) && /size/i.test(lines[0])) lines.shift();
+  parsedUniformRows = lines.map(l=>{ const [category,size,price] = l.split(',').map(x=>x&&x.trim()); return {category,size,price}; });
+  const rows = parsedUniformRows.map(r=>{
+    const validCat = CATEGORIES.includes(r.category);
+    const validSize = SIZES.includes(r.size);
+    const validPrice = !isNaN(Number(r.price)) && Number(r.price)>=0;
+    const ok = validCat && validSize && validPrice;
+    return `<tr style="${ok?'':'color:#c0392b'}"><td>${esc(r.category||'')}</td><td>${esc(r.size||'')}</td><td>${esc(r.price||'')}</td><td>${ok?'Valid':'Invalid'}</td></tr>`;
+  }).join('');
+  document.getElementById('iu-bulkPreview').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Category</th><th>Size</th><th>Price</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('iu-bulkAddBtn').classList.remove('hidden');
+}
+function confirmAddUniformsBulk(){
+  askConfirm('Are you sure you want to add these uniform items?', async ()=>{
+    try{ const res = await api('/api/uniforms/bulk','POST',{rows:parsedUniformRows}); showToast(`Added ${res.added.length} items${res.errors.length?', '+res.errors.length+' errors':''}`); document.getElementById('iu-bulkData').value=''; document.getElementById('iu-bulkPreview').innerHTML=''; document.getElementById('iu-bulkAddBtn').classList.add('hidden'); await reloadCatalog(); }
+    catch(e){ showToast(e.message); }
+  });
+}
+function downloadCsv(filename, content){
+  const blob = new Blob([content], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+// ---------- REMAINING STOCKS ----------
+function rmBack(){
+  document.getElementById('rm-booksPanel').classList.add('hidden');
+  document.getElementById('rm-uniformCatPanel').classList.add('hidden');
+  document.getElementById('rm-uniformSizePanel').classList.add('hidden');
+}
+let allRemainingBooks = [];
+async function showRemainingBooks(){
+  rmBack();
+  allRemainingBooks = await api('/api/remaining/books');
+  document.getElementById('rm-bookSearch').value='';
+  renderRemainingBooksTable();
+  document.getElementById('rm-booksPanel').classList.remove('hidden');
+}
+function renderRemainingBooksTable(){
+  const q = (document.getElementById('rm-bookSearch').value||'').toLowerCase();
+  const list = allRemainingBooks.filter(b => !q || b.name.toLowerCase().includes(q) || b.className.toLowerCase().includes(q));
+  document.getElementById('rm-booksTable').innerHTML = list.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(b.className)}</td><td>₹${b.price}</td><td>${b.total}</td><td>${b.given}</td><td>${b.remaining}</td><td>₹${b.total*b.price}</td><td>₹${b.given*b.price}</td></tr>`).join('') || '<tr><td colspan="8" style="color:var(--muted)">No books found</td></tr>';
+}
+document.getElementById('rm-bookSearch').addEventListener('input', renderRemainingBooksTable);
+function showRemainingUniforms(){
+  rmBack();
+  document.getElementById('rm-uniformCards').innerHTML = CATEGORIES.map(c=>`<div class="uniform-card" onclick="showRemainingUniformCat('${c}')">${c}</div>`).join('');
+  document.getElementById('rm-uniformCatPanel').classList.remove('hidden');
+}
+let allRemainingUniformSizes = [];
+async function showRemainingUniformCat(cat){
+  allRemainingUniformSizes = await api('/api/remaining/uniforms/'+encodeURIComponent(cat));
+  document.getElementById('rm-uniformCatTitle').textContent = 'Remaining Stock - '+cat;
+  document.getElementById('rm-sizeSearch').value='';
+  renderRemainingUniformSizeTable();
+  document.getElementById('rm-uniformCatPanel').classList.add('hidden');
+  document.getElementById('rm-uniformSizePanel').classList.remove('hidden');
+}
+function renderRemainingUniformSizeTable(){
+  const q = (document.getElementById('rm-sizeSearch').value||'').toLowerCase();
+  const list = allRemainingUniformSizes.filter(u=>!q || u.size.toLowerCase().includes(q));
+  document.getElementById('rm-uniformSizeTable').innerHTML = list.map(u=>`<tr><td>${esc(u.size)}</td><td>₹${u.price}</td><td>${u.total}</td><td>${u.given}</td><td>${u.remaining}</td><td>₹${u.total*u.price}</td><td>₹${u.given*u.price}</td></tr>`).join('') || '<tr><td colspan="7" style="color:var(--muted)">No items found</td></tr>';
+}
+document.getElementById('rm-sizeSearch').addEventListener('input', renderRemainingUniformSizeTable);
+
+// initial render
+renderDashboard(); renderStudentTable(); renderAsTable(); renderPayTable(); renderBookInventory(); renderIuCatCards();
+</script>
+</body>
+</html>
+
